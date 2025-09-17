@@ -1,0 +1,286 @@
+[Calendar schedule.json](https://github.com/user-attachments/files/22388873/Calendar.schedule.json)
+{
+  "name": "Calendar schedule",
+  "nodes": [
+    {
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'formattedList' to the JSON of each one\nfor (const item of $input.all()) {\n  // Check if the 'events' field exists and is an array\n  if (Array.isArray(item.json.summary)) {\n    // Join the array elements with newlines\n    item.json.formattedList = item.json.summary.join('\\n');\n  } else {\n    // If 'events' is not an array, set formattedList to an error message\n    item.json.formattedList = 'Error: events field is not an array';\n  }\n}\n\n// Return all items\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1136,
+        64
+      ],
+      "id": "951d9897-904a-4e88-af71-9663ba8678b0",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "content": "## Trigger daily\n",
+        "height": 220,
+        "width": 260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "2d765e64-2115-4339-bf01-6b6003c8342e",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Get Daily Events\n",
+        "height": 220,
+        "width": 260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        0
+      ],
+      "id": "e0457031-a734-4c73-9c0f-a67902a49a7e",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "## Send email\n",
+        "height": 220,
+        "width": 260,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "c4f5b48e-b7e8-4951-bee2-30f984b966c2",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "## Combine meetings\n",
+        "height": 220,
+        "width": 400,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        624,
+        0
+      ],
+      "id": "232ffed3-d933-4d0c-aa36-a5440e781e57",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "## Format them\n",
+        "height": 220,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        0
+      ],
+      "id": "0aa23454-1417-4941-9aa0-d7d128584988",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        80,
+        64
+      ],
+      "id": "df936552-24e5-409a-9ebf-9bb992c7f9c2",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "sriramparthiban1970@gmail.com",
+          "mode": "list",
+          "cachedResultName": "sriramparthiban1970@gmail.com"
+        },
+        "timeMin": "={{ $now.toLocal() }}",
+        "timeMax": "={{ $now.plus(8, 'hours') }}",
+        "options": {
+          "orderBy": "startTime"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        368,
+        64
+      ],
+      "id": "452ee59f-39bf-41ee-bdec-f1193ceb81b4",
+      "name": "Get many events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "X7LYYCgMDcIN9LkO",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sriramparthiban1970@gmail.com",
+        "subject": "=Meets Schedule for {{ $now.format('EEEE') }} {{ $now.format('yyyy-MM-dd') }}",
+        "message": "={{ $json.formattedList }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        64
+      ],
+      "id": "e723a79e-fef4-4bc4-834c-7c6d4854687d",
+      "name": "Send a message",
+      "webhookId": "2f6d7ea9-ee0d-41b3-b118-1f9cd69438c5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "cx4xJr91Npz8meGs",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4259b83d-4078-42ea-8dbb-3ed28b7d73ca",
+              "name": "summary",
+              "value": "={{ $json.start.dateTime.toDateTime().format('hh:mm') }} -- {{ $json.summary }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        656,
+        64
+      ],
+      "id": "02c90ef9-5c0c-47c6-9cce-4bcd7052d688",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "summary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        864,
+        64
+      ],
+      "id": "69773bf5-d14c-4dbe-abd1-2341a63ec614",
+      "name": "Aggregate1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Aggregate1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "37ba38bd-0ef1-4a36-959f-df79836603c3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0bc77d1e83eb271c93d761935713d306621ca9e7f4a7a40c1c9c6764db49cd61"
+  },
+  "id": "wvviA6kD9IdzzNBh",
+  "tags": []
+}
